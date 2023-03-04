@@ -1,0 +1,217 @@
+local CoreGui = game.CoreGui
+local ContentProvider = game.ContentProvider
+local RobloxGuis = {"RobloxGui", "TeleportGui", "RobloxPromptGui", "RobloxLoadingGui", "PlayerList", "RobloxNetworkPauseNotification", "PurchasePrompt", "HeadsetDisconnectedDialog", "ThemeProvider", "DevConsoleMaster"}
+
+local function FilterTable(tbl)
+    local context = syn_context_get()
+    syn_context_set(7)
+    local new = {}
+    for i,v in ipairs(tbl) do --roblox iterates the array part
+        if typeof(v) ~= "Instance" then
+            table.insert(new, v)
+    else
+        if v == CoreGui or v == game then
+            --insert only the default roblox guis
+            for i,v in pairs(RobloxGuis) do
+                local gui = CoreGui:FindFirstChild(v)
+                if gui then
+                    table.insert(new, gui)
+                end
+            end
+
+            if v == game then
+                for i,v in pairs(game:GetChildren()) do
+                    if v ~= CoreGui then
+                        table.insert(new, v)
+                    end
+                end
+            end
+        else
+            if not CoreGui:IsAncestorOf(v) then
+                table.insert(new, v)
+            else
+                --don't insert it if it's a descendant of a different gui than default roblox guis
+                for j,k in pairs(RobloxGuis) do
+                    local gui = CoreGui:FindFirstChild(k)
+                    if gui then
+                        if v == gui or gui:IsAncestorOf(v) then
+                            table.insert(new, v)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+    end
+    syn_context_set(context)
+    return new
+end
+
+local old
+old = hookfunc(ContentProvider.PreloadAsync, function(self, tbl, cb)
+    if self ~= ContentProvider or type(tbl) ~= "table" or type(cb) ~= "function" then --note: callback can be nil but in that case it's useless anyways
+        return old(self, tbl, cb)
+    end
+
+    --check for any errors that I might've missed (such as table being {[2] = "something"} which causes "Unable to cast to Array")
+    local err
+    task.spawn(function() --TIL pcalling a C yield function inside a C yield function is a bad idea ("cannot resume non-suspended coroutine")
+        local s,e = pcall(old, self, tbl)
+        if not s and e then
+            err = e
+        end
+    end)
+
+    if err then
+        return old(self, tbl) --don't pass the callback, just in case
+    end
+
+    tbl = FilterTable(tbl)
+    return old(self, tbl, cb)
+end)
+
+local old
+old = hookmetamethod(game, "__namecall", function(self, ...)
+    local method = getnamecallmethod()
+    if self == ContentProvider and (method == "PreloadAsync" or method == "preloadAsync") then
+        local args = {...}
+        if type(args[1]) ~= "table" or type(args[2]) ~= "function" then
+            return old(self, ...)
+        end
+
+        local err
+        task.spawn(function()
+            setnamecallmethod(method) --different thread, different namecall method
+            local s,e = pcall(old, self, args[1])
+            if not s and e then
+                err = e
+            end
+        end)
+
+        if err then
+            return old(self, args[1])
+        end
+
+        args[1] = FilterTable(args[1])
+        setnamecallmethod(method)
+        return old(self, args[1], args[2])
+    end
+    return old(self, ...)
+end)
+
+local enabled = true
+repeat wait() until game:IsLoaded()
+
+local rconsoleprint = rconsoleprint or warn
+
+if enabled and game.PlaceId == 8204899140 then
+  
+	local mps = game:GetService('MarketplaceService')
+	local FFlastUpdated = DateTime.fromIsoDate(mps:GetProductInfo(game.PlaceId).Updated).UnixTimestamp
+	local bypassLastUpdated = 1672183004
+	local safe = bypassLastUpdated >= FFlastUpdated
+
+	-- Alt Account Bypass
+	local randomNumber = Random.new():NextNumber(1e3,9e3)
+	local oldClock = os.clock()
+	local newClock
+	newClock = hookfunction(os.clock, function()
+		return (newClock()-oldClock) + randomNumber
+	end)
+
+	-- Global Variables
+	local a={['\a']='\\a',['\b']='\\b',['\f']='\\f',['\n']='\\n',['\r']='\\r',['\t']='\\t',['\v']='\\v',['\0']='\\0'}local b={['and']=true,['break']=true,['do']=true,['else']=true,['elseif']=true,['end']=true,['false']=true,['for']=true,['function']=true,['if']=true,['in']=true,['local']=true,['nil']=true,['not']=true,['or']=true,['repeat']=true,['return']=true,['then']=true,['true']=true,['until']=true,['while']=true,['continue']=true}local c={[DockWidgetPluginGuiInfo.new]="DockWidgetPluginGuiInfo.new",[warn]="warn",[CFrame.fromMatrix]="CFrame.fromMatrix",[CFrame.fromAxisAngle]="CFrame.fromAxisAngle",[CFrame.fromOrientation]="CFrame.fromOrientation",[CFrame.fromEulerAnglesXYZ]="CFrame.fromEulerAnglesXYZ",[CFrame.Angles]="CFrame.Angles",[CFrame.fromEulerAnglesYXZ]="CFrame.fromEulerAnglesYXZ",[CFrame.new]="CFrame.new",[gcinfo]="gcinfo",[os.clock]="os.clock",[os.difftime]="os.difftime",[os.time]="os.time",[os.date]="os.date",[tick]="tick",[bit32.band]="bit32.band",[bit32.extract]="bit32.extract",[bit32.bor]="bit32.bor",[bit32.bnot]="bit32.bnot",[bit32.arshift]="bit32.arshift",[bit32.rshift]="bit32.rshift",[bit32.rrotate]="bit32.rrotate",[bit32.replace]="bit32.replace",[bit32.lshift]="bit32.lshift",[bit32.lrotate]="bit32.lrotate",[bit32.btest]="bit32.btest",[bit32.bxor]="bit32.bxor",[pairs]="pairs",[NumberSequence.new]="NumberSequence.new",[assert]="assert",[tonumber]="tonumber",[Color3.fromHSV]="Color3.fromHSV",[Color3.toHSV]="Color3.toHSV",[Color3.fromRGB]="Color3.fromRGB",[Color3.new]="Color3.new",[Delay]="Delay",[Stats]="Stats",[UserSettings]="UserSettings",[coroutine.resume]="coroutine.resume",[coroutine.yield]="coroutine.yield",[coroutine.running]="coroutine.running",[coroutine.status]="coroutine.status",[coroutine.wrap]="coroutine.wrap",[coroutine.create]="coroutine.create",[coroutine.isyieldable]="coroutine.isyieldable",[NumberRange.new]="NumberRange.new",[PhysicalProperties.new]="PhysicalProperties.new",[PluginManager]="PluginManager",[Ray.new]="Ray.new",[NumberSequenceKeypoint.new]="NumberSequenceKeypoint.new",[Version]="Version",[Vector2.new]="Vector2.new",[Instance.new]="Instance.new",[delay]="delay",[spawn]="spawn",[unpack]="unpack",[string.split]="string.split",[string.match]="string.match",[string.gmatch]="string.gmatch",[string.upper]="string.upper",[string.gsub]="string.gsub",[string.format]="string.format",[string.lower]="string.lower",[string.sub]="string.sub",[string.pack]="string.pack",[string.rep]="string.rep",[string.char]="string.char",[string.packsize]="string.packsize",[string.reverse]="string.reverse",[string.byte]="string.byte",[string.unpack]="string.unpack",[string.len]="string.len",[string.find]="string.find",[CellId.new]="CellId.new",[ypcall]="ypcall",[version]="version",[print]="print",[stats]="stats",[printidentity]="printidentity",[settings]="settings",[UDim2.fromOffset]="UDim2.fromOffset",[UDim2.fromScale]="UDim2.fromScale",[UDim2.new]="UDim2.new",[table.pack]="table.pack",[table.move]="table.move",[table.insert]="table.insert",[table.getn]="table.getn",[table.foreachi]="table.foreachi",[table.maxn]="table.maxn",[table.foreach]="table.foreach",[table.concat]="table.concat",[table.unpack]="table.unpack",[table.find]="table.find",[table.create]="table.create",[table.sort]="table.sort",[table.remove]="table.remove",[TweenInfo.new]="TweenInfo.new",[loadstring]="loadstring",[require]="require",[Vector3.FromNormalId]="Vector3.FromNormalId",[Vector3.FromAxis]="Vector3.FromAxis",[Vector3.fromAxis]="Vector3.fromAxis",[Vector3.fromNormalId]="Vector3.fromNormalId",[Vector3.new]="Vector3.new",[Vector3int16.new]="Vector3int16.new",[setmetatable]="setmetatable",[next]="next",[Wait]="Wait",[wait]="wait",[ipairs]="ipairs",[elapsedTime]="elapsedTime",[time]="time",[rawequal]="rawequal",[Vector2int16.new]="Vector2int16.new",[collectgarbage]="collectgarbage",[newproxy]="newproxy",[Spawn]="Spawn",[PluginDrag.new]="PluginDrag.new",[Region3.new]="Region3.new",[utf8.offset]="utf8.offset",[utf8.codepoint]="utf8.codepoint",[utf8.nfdnormalize]="utf8.nfdnormalize",[utf8.char]="utf8.char",[utf8.codes]="utf8.codes",[utf8.len]="utf8.len",[utf8.graphemes]="utf8.graphemes",[utf8.nfcnormalize]="utf8.nfcnormalize",[xpcall]="xpcall",[tostring]="tostring",[rawset]="rawset",[PathWaypoint.new]="PathWaypoint.new",[DateTime.fromUnixTimestamp]="DateTime.fromUnixTimestamp",[DateTime.now]="DateTime.now",[DateTime.fromIsoDate]="DateTime.fromIsoDate",[DateTime.fromUnixTimestampMillis]="DateTime.fromUnixTimestampMillis",[DateTime.fromLocalTime]="DateTime.fromLocalTime",[DateTime.fromUniversalTime]="DateTime.fromUniversalTime",[Random.new]="Random.new",[typeof]="typeof",[RaycastParams.new]="RaycastParams.new",[math.log]="math.log",[math.ldexp]="math.ldexp",[math.rad]="math.rad",[math.cosh]="math.cosh",[math.random]="math.random",[math.frexp]="math.frexp",[math.tanh]="math.tanh",[math.floor]="math.floor",[math.max]="math.max",[math.sqrt]="math.sqrt",[math.modf]="math.modf",[math.pow]="math.pow",[math.atan]="math.atan",[math.tan]="math.tan",[math.cos]="math.cos",[math.sign]="math.sign",[math.clamp]="math.clamp",[math.log10]="math.log10",[math.noise]="math.noise",[math.acos]="math.acos",[math.abs]="math.abs",[math.sinh]="math.sinh",[math.asin]="math.asin",[math.min]="math.min",[math.deg]="math.deg",[math.fmod]="math.fmod",[math.randomseed]="math.randomseed",[math.atan2]="math.atan2",[math.ceil]="math.ceil",[math.sin]="math.sin",[math.exp]="math.exp",[getfenv]="getfenv",[pcall]="pcall",[ColorSequenceKeypoint.new]="ColorSequenceKeypoint.new",[ColorSequence.new]="ColorSequence.new",[type]="type",[Region3int16.new]="Region3int16.new",[ElapsedTime]="ElapsedTime",[select]="select",[getmetatable]="getmetatable",[rawget]="rawget",[Faces.new]="Faces.new",[Rect.new]="Rect.new",[BrickColor.Blue]="BrickColor.Blue",[BrickColor.White]="BrickColor.White",[BrickColor.Yellow]="BrickColor.Yellow",[BrickColor.Red]="BrickColor.Red",[BrickColor.Gray]="BrickColor.Gray",[BrickColor.palette]="BrickColor.palette",[BrickColor.New]="BrickColor.New",[BrickColor.Black]="BrickColor.Black",[BrickColor.Green]="BrickColor.Green",[BrickColor.Random]="BrickColor.Random",[BrickColor.DarkGray]="BrickColor.DarkGray",[BrickColor.random]="BrickColor.random",[BrickColor.new]="BrickColor.new",[setfenv]="setfenv",[UDim.new]="UDim.new",[Axes.new]="Axes.new",[error]="error",[debug.traceback]="debug.traceback",[debug.profileend]="debug.profileend",[debug.profilebegin]="debug.profilebegin"}local function d(e)local f={}local g=1;local h=e;while h do h=h.Parent;g=g+1 end;h=e;local i=0;while h do i=i+1;local j=string.gsub(h.Name,'[%c%z]',a)j=h==game and'game'or j;if b[j]or not string.match(j,'^[_%a][_%w]*$')then j='["'..j..'"]'elseif i~=g-1 then j='.'..j end;f[g-i]=j;h=h.Parent end;return table.concat(f)end;local function k(l,m)if m=='string'then return string.format('"%s"',string.gsub(l,'[%c%z]',a))elseif m=='Instance'then return d(l)elseif type(l)~=m then return m..'.new('..tostring(l)..')'elseif m=='function'then return c[l]or'\'[Unknown '..(pcall(setfenv,l,getfenv(l))and'Lua'or'C')..' '..tostring(l)..']\''elseif m=='userdata'then return'newproxy('..tostring(not not getmetatable(l))..')'elseif m=='thread'then return'\''..tostring(l)..', status: '..coroutine.status(l)..'\''else return tostring(l)end end;getgenv().tableToString=function(n,o,p,q)o=o or{}local r=o[n]if r then return(r[1]==p[1]-1 and'\'[Cyclic Parent 'or'\'[Cyclic ')..tostring(n)..', path: '..r[2]..']\''end;q=q or'ROOT'p=p or{0,q}local s=p[1]+1;p[1]=s;p[2]=q;o[n]=p;local t=string.rep('    ',s)local u=string.rep('    ',s-1)local v='{'local w='\n'..t;local x=true;local y=1;local z=true;for A,l in next,n do z=false;if y~=A then x=false else y=y+1 end;local B,C=typeof(A),typeof(l)local D=false;if B=='string'then A=string.gsub(A,'[%c%z]',a)if b[A]or not string.match(A,'^[_%a][_%w]*$')then D=true;A=string.format('["%s"]',A)end else D=true;A='['..(B=='table'and string.gsub(tableToString(A,o,{s+1,q}),'^%s*(.-)%s*$','%1')or k(A,B))..']'end;l=C=='table'and tableToString(l,o,{s+1,q},q..(D and''or'.')..A)or k(l,C)v=v..w..(x and l or A..' = '..l)..','end;return z and v..'}'or string.sub(v,1,-2)..'\n'..u..'}'end
+	
+	-- Fix Service Names
+	--[[ local function fixName(n)game:GetService(n).Name=n end
+	fixName('Workspace')
+	fixName('Players')
+	fixName('ReplicatedStorage') ]]
+	
+	-- AC Info
+	local argStr
+	getgenv().defaultNumbers = {}
+	local safe = true
+	local bypassed = false
+	
+	-- Metamethod Hook
+	--[[ rconsolename('FF AntiCheat Log')
+	rconsoleprint(' ')
+	rconsoleclear() ]]
+	spawn(function()
+		repeat wait() until bypassed
+		rconsoleprint('Bypassed')
+	end)
+	local mt = getrawmetatable(game)
+	local oldnc = mt.__namecall
+	setreadonly(mt, false)
+	mt.__namecall = newcclosure(function(Self, a1, a2, ...)
+		local method = getnamecallmethod()
+		local args = {a1, a2, ...}
+		if not checkcaller() and (method:lower() == 'fireserver' or method:lower() == 'invokeserver') then
+			local isAC = typeof(a1) == 'string' and (a1:lower():sub(1,2) == 'ac') or false
+			if isAC then
+				if typeof(a2) == 'table' --[[ and #a2 == 19  ]]then
+					if not argStr then
+						argStr = tableToString(a2)
+						local strNumbers = argStr:gsub('    ',''):split('{},\n')[2]:split(',\n')
+						defaultNumbers = {}
+						for i,v in pairs(strNumbers) do
+							table.insert(defaultNumbers,tonumber(v))
+						end
+					elseif #defaultNumbers == 17 then
+						local check = tableToString(a2) == argStr
+						safe = check
+						if true --[[ not check ]] then
+							--[[ spawn(function()
+								rconsoleprint('!-- AntiCheat Detection BLOCKED --!')
+								rconsoleprint(tableToString(args) .. '------------------------------------\n\n\n')
+							end) ]]
+							for i,v in pairs(a2) do
+								if i >= 2 and i <= 18 then
+									local n = defaultNumbers[i-1]
+									if n and typeof(n) == 'number' then
+										rawset(a2,i,n)
+									else
+										warn('Default Number not found.')
+									end
+								end
+							end
+							bypassed = true
+							return oldnc(Self, a1, a2, ...)
+						end
+					else
+						warn('defaultNumbers is not 17???')
+					end
+	--[[ 			elseif #a2 ~= 19 then
+					warn('Wrong number of args. (Expected 19, got ' .. tostring(#a2) .. '.)') ]]
+				else
+					--[[ spawn(function()
+						rconsoleprint('!-- AntiCheat Detection BLOCKED --!')
+						rconsoleprint(tableToString(args) .. '------------------------------------\n\n\n')
+					end) ]]
+					return
+				end
+			end
+		end
+		return oldnc(Self, a1, a2, ...)
+	end)
+	setreadonly(mt, true)
+	
+	-- Anti Freeze
+	getgenv().delay = hookfunction(delay,function(t,func,...)
+		local _script = getfenv(func).script
+		if _script.Name == 'LocalScript' and tostring(_script.Parent) == 'PlayerModule' then
+			return
+		else
+			return delay(t,function()end)
+		end
+	end)
+
+	--[[ while wait(1) do
+		rconsoleclear()
+		rconsoleprint(tableToString(defaultNumbers))
+	end ]]
+
+end
