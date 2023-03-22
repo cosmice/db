@@ -1,1294 +1,570 @@
--- This User Interface Library is brought to you by Solaris Software.
-local Solaris = Instance.new("ScreenGui")
-Solaris.Name = "dosage's solaris gui"
-Solaris.Parent = game.CoreGui
-Solaris.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local NotificationHolder = Instance.new("ScreenGui")
-NotificationHolder.Name = "notiHolder"
-NotificationHolder.Parent = game.CoreGui
-NotificationHolder.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local LocalPlayer = game:GetService("Players").LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
-local http = game:GetService("HttpService")
-
-local WhitelistedMouse = {Enum.UserInputType.MouseButton1, Enum.UserInputType.MouseButton2,Enum.UserInputType.MouseButton3}
-local BlacklistedKeys = {Enum.KeyCode.Unknown,Enum.KeyCode.W,Enum.KeyCode.A,Enum.KeyCode.S,Enum.KeyCode.D,Enum.KeyCode.Up,Enum.KeyCode.Left,Enum.KeyCode.Down,Enum.KeyCode.Right,Enum.KeyCode.Slash,Enum.KeyCode.Tab,Enum.KeyCode.Backspace,Enum.KeyCode.Escape}
-
-local function CheckKey(tab, key)
-	for i, v in next, tab do
-		if v == key then
-			return true
-		end
-	end
-end
-
-
-
-local NotificationFrame = game:GetObjects("rbxassetid://6924028278")[1]
-NotificationFrame.ZIndex = 4
-NotificationFrame.Parent = NotificationHolder
-script = NotificationFrame.NotifScript
-local Notify = loadstring(NotificationFrame.NotifScript.Source)()
-script = oldScript
-
-local SolarisLib = {
-    Themes = {
-        Default = {
-            MainFrame = Color3.fromRGB(25, 25, 25),
-            TopBar = Color3.fromRGB(30, 30, 30),
-            TextColor =  Color3.fromRGB(255,255,255),
-            Menu = Color3.fromRGB(37, 37, 37),
-            TabToggled = Color3.fromRGB(43,43,43),
-            Button = Color3.fromRGB(30,30,30),
-            ButtonHold = Color3.fromRGB(31,31,31),
-            Toggle = Color3.fromRGB(30,30,30),
-            ToggleFrame = Color3.fromRGB(55,55,55),
-            ToggleToggled = Color3.fromRGB(22, 168, 76),
-            Slider = Color3.fromRGB(30,30,30),
-            SliderBar = Color3.fromRGB(25, 25, 25),
-            SliderInc = Color3.fromRGB(60, 60, 60),
-            Dropdown = Color3.fromRGB(30,30,30),
-            DropdownItem = Color3.fromRGB(30,30,30),
-            Textbox = Color3.fromRGB(30,30,30),
-            TextboxFrame = Color3.fromRGB(25, 25, 25),
-            Colorpicker = Color3.fromRGB(30,30,30),
-            Label = Color3.fromRGB(30,30,30),
-            Bind = Color3.fromRGB(30,30,30)
-        },
-        Discord = {
-            MainFrame = Color3.fromRGB(54,57,63),
-            TopBar = Color3.fromRGB(47,49,54),
-            TextColor =  Color3.fromRGB(255,255,255),
-            Menu = Color3.fromRGB(47,49,54),
-            TabToggled = Color3.fromRGB(54,57,63),
-            Button = Color3.fromRGB(88,101,242),
-            ButtonHold = Color3.fromRGB(71,82,196),
-            Toggle = Color3.fromRGB(47,49,54),
-            ToggleFrame = Color3.fromRGB(67,69,74),
-            ToggleToggled = Color3.fromRGB(22, 168, 76),
-            Slider = Color3.fromRGB(47,49,54),
-            SliderBar = Color3.fromRGB(42,44,49),
-            SliderInc = Color3.fromRGB(62,64,69),
-            Dropdown = Color3.fromRGB(47,49,54),
-            DropdownItem = Color3.fromRGB(47,49,54),
-            Textbox = Color3.fromRGB(47,49,54),
-            TextboxFrame = Color3.fromRGB(42,44,49),
-            Colorpicker = Color3.fromRGB(47,49,54),
-            Label = Color3.fromRGB(47,49,54),
-            Bind = Color3.fromRGB(47,49,54)
-        },
-        Blue = {
-            MainFrame = Color3.fromRGB(35, 35, 50),
-            TopBar = Color3.fromRGB(40, 40, 55),
-            TextColor =  Color3.fromRGB(255,255,255),
-            Menu = Color3.fromRGB(47, 47, 62),
-            TabToggled = Color3.fromRGB(53,53,68),
-            Button = Color3.fromRGB(40,40,55),
-            ButtonHold = Color3.fromRGB(41,41,56),
-            Toggle = Color3.fromRGB(40,40,55),
-            ToggleFrame = Color3.fromRGB(65,65,80),
-            ToggleToggled = Color3.fromRGB(64, 64, 120),
-            Slider = Color3.fromRGB(40,40,55),
-            SliderBar = Color3.fromRGB(35, 35, 50),
-            SliderInc = Color3.fromRGB(70, 70, 85),
-            Dropdown = Color3.fromRGB(40,40,55),
-            DropdownItem = Color3.fromRGB(40,40,55),
-            Textbox = Color3.fromRGB(40,40,55),
-            TextboxFrame = Color3.fromRGB(35, 35, 50),
-            Colorpicker = Color3.fromRGB(40,40,55),
-            Label = Color3.fromRGB(40,40,55),
-            Bind = Color3.fromRGB(40,40,55)
-        },
-        Red = {
-            MainFrame = Color3.fromRGB(171, 48, 48),
-            TopBar = Color3.fromRGB(171, 48, 48),
-            TextColor =  Color3.fromRGB(255,255,255),
-            Menu = Color3.fromRGB(214, 29, 28),
-            TabToggled = Color3.fromRGB(214, 29, 28),
-            Button = Color3.fromRGB(171, 48, 48),
-            ButtonHold = Color3.fromRGB(171, 48, 48),
-            Toggle = Color3.fromRGB(171, 48, 48),
-            ToggleFrame = Color3.fromRGB(214, 29, 28),
-            ToggleToggled = Color3.fromRGB(120, 64, 64),
-            Slider = Color3.fromRGB(55,40,40),
-            SliderBar = Color3.fromRGB(50, 35, 35),
-            SliderInc = Color3.fromRGB(85, 70, 70),
-            Dropdown = Color3.fromRGB(55,40,40),
-            DropdownItem = Color3.fromRGB(55,40,40),
-            Textbox = Color3.fromRGB(55,40,40),
-            TextboxFrame = Color3.fromRGB(50, 35, 35),
-            Colorpicker = Color3.fromRGB(55,40,40),
-            Label = Color3.fromRGB(55,40,40),
-            Bind = Color3.fromRGB(55,40,40)
-        },
-        Green = {
-            MainFrame = Color3.fromRGB(35, 50, 35),
-            TopBar = Color3.fromRGB(40, 55, 40),
-            TextColor =  Color3.fromRGB(255,255,255),
-            Menu = Color3.fromRGB(47, 62, 47),
-            TabToggled = Color3.fromRGB(53,68,53),
-            Button = Color3.fromRGB(40,55,40),
-            ButtonHold = Color3.fromRGB(41,56,41),
-            Toggle = Color3.fromRGB(40,55,40),
-            ToggleFrame = Color3.fromRGB(65,80,65),
-            ToggleToggled = Color3.fromRGB(64, 120, 64),
-            Slider = Color3.fromRGB(40,55,40),
-            SliderBar = Color3.fromRGB(35, 50, 35),
-            SliderInc = Color3.fromRGB(70, 85, 70),
-            Dropdown = Color3.fromRGB(40,55,40),
-            DropdownItem = Color3.fromRGB(40,55,40),
-            Textbox = Color3.fromRGB(40,55,40),
-            TextboxFrame = Color3.fromRGB(35, 50, 35),
-            Colorpicker = Color3.fromRGB(40,55,40),
-            Label = Color3.fromRGB(40,55,40),
-            Bind = Color3.fromRGB(40,55,40)
-        }
-    },
-    Settings = {
-        Theme = "Default",
-        ShowFriendsOnLaunch = true,
-        ShowMusicOnLaunch = false,
-        CloseBind = "RightControl"
-    },
-    Flags = {},
-    CurrentTab
+{
+  "icons": {
+    "hawg": "rbxassetid:12866450073",
+    "aperture": "rbxassetid://7733666258",
+    "bug": "rbxassetid://7733701545",
+    "chevrons-down-up": "rbxassetid://7733720483",
+    "clock-6": "rbxassetid://8997384977",
+    "egg": "rbxassetid://8997385940",
+    "external-link": "rbxassetid://7743866903",
+    "lightbulb-off": "rbxassetid://7733975123",
+    "file-check-2": "rbxassetid://7733779610",
+    "settings": "rbxassetid://7734053495",
+    "crown": "rbxassetid://7733765398",
+    "coins": "rbxassetid://7743866529",
+    "battery": "rbxassetid://7733674820",
+    "flashlight-off": "rbxassetid://7733798799",
+    "camera-off": "rbxassetid://7733919260",
+    "function-square": "rbxassetid://7733799682",
+    "mountain-snow": "rbxassetid://7743870286",
+    "gamepad": "rbxassetid://7733799901",
+    "gift": "rbxassetid://7733946818",
+    "globe": "rbxassetid://7733954760",
+    "option": "rbxassetid://7734021300",
+    "hand": "rbxassetid://7733955740",
+    "hard-hat": "rbxassetid://7733955850",
+    "hash": "rbxassetid://7733955906",
+    "server": "rbxassetid://7734053426",
+    "align-horizontal-space-around": "rbxassetid://8997381738",
+    "highlighter": "rbxassetid://7743868648",
+    "bike": "rbxassetid://7733678330",
+    "home": "rbxassetid://7733960981",
+    "image": "rbxassetid://7733964126",
+    "indent": "rbxassetid://7733964452",
+    "infinity": "rbxassetid://7733964640",
+    "inspect": "rbxassetid://7733964808",
+    "alert-triangle": "rbxassetid://7733658504",
+    "align-start-horizontal": "rbxassetid://8997381965",
+    "figma": "rbxassetid://7743867310",
+    "pin": "rbxassetid://8997386648",
+    "corner-up-right": "rbxassetid://7733764915",
+    "list-x": "rbxassetid://7743869517",
+    "monitor-off": "rbxassetid://7734000184",
+    "chevron-first": "rbxassetid://8997383275",
+    "package-search": "rbxassetid://8997386448",
+    "pencil": "rbxassetid://7734022107",
+    "cloud-fog": "rbxassetid://7733920317",
+    "grip-horizontal": "rbxassetid://7733955302",
+    "align-center-vertical": "rbxassetid://8997380737",
+    "outdent": "rbxassetid://7734021384",
+    "more-vertical": "rbxassetid://7734006187",
+    "package-plus": "rbxassetid://8997386355",
+    "bluetooth": "rbxassetid://7733687147",
+    "pen-tool": "rbxassetid://7734022041",
+    "person-standing": "rbxassetid://7743871002",
+    "tornado": "rbxassetid://7743873633",
+    "phone-incoming": "rbxassetid://7743871120",
+    "phone-off": "rbxassetid://7734029534",
+    "dribbble": "rbxassetid://7733770843",
+    "at-sign": "rbxassetid://7733673907",
+    "edit-2": "rbxassetid://7733771217",
+    "sheet": "rbxassetid://7743871876",
+    "tv": "rbxassetid://7743874674",
+    "headphones": "rbxassetid://7733956063",
+    "qr-code": "rbxassetid://7743871575",
+    "reply": "rbxassetid://7734051594",
+    "rewind": "rbxassetid://7734051670",
+    "bell-off": "rbxassetid://7733675107",
+    "file-check": "rbxassetid://7733779668",
+    "quote": "rbxassetid://7734045100",
+    "rotate-ccw": "rbxassetid://7734051861",
+    "library": "rbxassetid://7743869054",
+    "clock-1": "rbxassetid://8997383694",
+    "on-charge": "rbxassetid://7734021231",
+    "video-off": "rbxassetid://7743876466",
+    "save": "rbxassetid://7734052335",
+    "arrow-left-circle": "rbxassetid://7733673056",
+    "screen-share": "rbxassetid://7734052814",
+    "clock-3": "rbxassetid://8997384456",
+    "help-circle": "rbxassetid://7733956210",
+    "server-crash": "rbxassetid://7734053281",
+    "bluetooth-searching": "rbxassetid://7733914320",
+    "equal": "rbxassetid://7733771811",
+    "shield-close": "rbxassetid://7734056470",
+    "phone": "rbxassetid://7734032056",
+    "type": "rbxassetid://7743874740",
+    "file-x-2": "rbxassetid://7743867554",
+    "sidebar": "rbxassetid://7734058260",
+    "sigma": "rbxassetid://7734058345",
+    "smartphone-charging": "rbxassetid://7734058894",
+    "arrow-left": "rbxassetid://7733673136",
+    "framer": "rbxassetid://7733799486",
+    "currency": "rbxassetid://7733765592",
+    "star": "rbxassetid://7734068321",
+    "stretch-horizontal": "rbxassetid://8997387754",
+    "smile": "rbxassetid://7734059095",
+    "subscript": "rbxassetid://8997387937",
+    "sun": "rbxassetid://7734068495",
+    "switch-camera": "rbxassetid://7743872492",
+    "table": "rbxassetid://7734073253",
+    "tag": "rbxassetid://7734075797",
+    "cross": "rbxassetid://7733765224",
+    "gem": "rbxassetid://7733942651",
+    "link": "rbxassetid://7733978098",
+    "terminal": "rbxassetid://7743872929",
+    "thermometer-sun": "rbxassetid://7734084018",
+    "share-2": "rbxassetid://7734053595",
+    "timer-off": "rbxassetid://8997388325",
+    "megaphone": "rbxassetid://7733993049",
+    "timer-reset": "rbxassetid://7743873336",
+    "phone-forwarded": "rbxassetid://7734027345",
+    "unlock": "rbxassetid://7743875263",
+    "trello": "rbxassetid://7743873996",
+    "camera": "rbxassetid://7733708692",
+    "triangle": "rbxassetid://7743874367",
+    "truck": "rbxassetid://7743874482",
+    "file-output": "rbxassetid://7733788742",
+    "gamepad-2": "rbxassetid://7733799795",
+    "network": "rbxassetid://7734021047",
+    "users": "rbxassetid://7743876054",
+    "electricity-off": "rbxassetid://7733771563",
+    "book": "rbxassetid://7733914390",
+    "clock-9": "rbxassetid://8997385485",
+    "corner-down-left": "rbxassetid://7733764327",
+    "locate-fixed": "rbxassetid://7733992424",
+    "bar-chart": "rbxassetid://7733674319",
+    "shield-check": "rbxassetid://7734056411",
+    "signal-low": "rbxassetid://8997387189",
+    "reply-all": "rbxassetid://7734051524",
+    "zoom-in": "rbxassetid://7743878977",
+    "grip-vertical": "rbxassetid://7733955410",
+    "ticket": "rbxassetid://7734086558",
+    "smartphone": "rbxassetid://7734058979",
+    "arrow-big-right": "rbxassetid://7733671493",
+    "tv-2": "rbxassetid://7743874599",
+    "flashlight": "rbxassetid://7733798851",
+    "database": "rbxassetid://7743866778",
+    "plus-square": "rbxassetid://7734040369",
+    "align-justify": "rbxassetid://7733661326",
+    "clipboard-list": "rbxassetid://7733920117",
+    "github": "rbxassetid://7733954058",
+    "columns": "rbxassetid://7733757178",
+    "arrow-big-down": "rbxassetid://7733668653",
+    "cloud-off": "rbxassetid://7733745572",
+    "target": "rbxassetid://7743872758",
+    "skip-back": "rbxassetid://7734058404",
+    "x-circle": "rbxassetid://7743878496",
+    "clock-10": "rbxassetid://8997383876",
+    "align-right": "rbxassetid://7733663582",
+    "clock-5": "rbxassetid://8997384798",
+    "bell-plus": "rbxassetid://7733675181",
+    "battery-medium": "rbxassetid://7733674731",
+    "arrow-down": "rbxassetid://7733672933",
+    "inbox": "rbxassetid://7733964370",
+    "cast": "rbxassetid://7733919326",
+    "gift-card": "rbxassetid://7733945018",
+    "webcam": "rbxassetid://7743877896",
+    "folder-minus": "rbxassetid://7733799022",
+    "scan-line": "rbxassetid://8997386772",
+    "shovel": "rbxassetid://7734056878",
+    "download-cloud": "rbxassetid://7733770689",
+    "list-checks": "rbxassetid://7743869317",
+    "file-text": "rbxassetid://7733789088",
+    "codesandbox": "rbxassetid://7733752575",
+    "laptop-2": "rbxassetid://7733965313",
+    "podcast": "rbxassetid://7734042234",
+    "log-out": "rbxassetid://7733992677",
+    "thumbs-up": "rbxassetid://7743873212",
+    "timer": "rbxassetid://7743873443",
+    "text-cursor": "rbxassetid://8997388195",
+    "file-search": "rbxassetid://7733788966",
+    "thermometer": "rbxassetid://7734084149",
+    "bluetooth-off": "rbxassetid://7733914252",
+    "refresh-cw": "rbxassetid://7734051052",
+    "clipboard-check": "rbxassetid://7733919947",
+    "languages": "rbxassetid://7733965249",
+    "asterisk": "rbxassetid://7733673800",
+    "superscript": "rbxassetid://8997388036",
+    "user-check": "rbxassetid://7743875503",
+    "move-diagonal": "rbxassetid://7743870505",
+    "copy": "rbxassetid://7733764083",
+    "bot": "rbxassetid://7733916988",
+    "alarm-minus": "rbxassetid://7733656164",
+    "log-in": "rbxassetid://7733992604",
+    "maximize": "rbxassetid://7733992982",
+    "align-horizontal-space-between": "rbxassetid://8997381854",
+    "brush": "rbxassetid://7733701455",
+    "equal-not": "rbxassetid://7733771726",
+    "upload": "rbxassetid://7743875428",
+    "minus-circle": "rbxassetid://7733998053",
+    "graduation-cap": "rbxassetid://7733955058",
+    "edit-3": "rbxassetid://7733771361",
+    "check": "rbxassetid://7733715400",
+    "scissors": "rbxassetid://7734052570",
+    "info": "rbxassetid://7733964719",
+    "align-horizonal-distribute-start": "rbxassetid://8997381290",
+    "book-open": "rbxassetid://7733687281",
+    "divide-circle": "rbxassetid://7733769152",
+    "file": "rbxassetid://7733793319",
+    "clock-2": "rbxassetid://8997384295",
+    "corner-right-up": "rbxassetid://7733764680",
+    "clover": "rbxassetid://7733747233",
+    "expand": "rbxassetid://7733771982",
+    "gauge": "rbxassetid://7733799969",
+    "phone-outgoing": "rbxassetid://7743871253",
+    "shield-alert": "rbxassetid://7734056326",
+    "paperclip": "rbxassetid://7734021680",
+    "arrow-big-left": "rbxassetid://7733911731",
+    "album": "rbxassetid://7733658133",
+    "bookmark": "rbxassetid://7733692043",
+    "check-circle-2": "rbxassetid://7733710700",
+    "list-ordered": "rbxassetid://7743869411",
+    "delete": "rbxassetid://7733768142",
+    "axe": "rbxassetid://7733674079",
+    "radio": "rbxassetid://7743871662",
+    "octagon": "rbxassetid://7734021165",
+    "git-commit": "rbxassetid://7743868360",
+    "shirt": "rbxassetid://7734056672",
+    "corner-right-down": "rbxassetid://7733764605",
+    "trending-down": "rbxassetid://7743874143",
+    "airplay": "rbxassetid://7733655834",
+    "repeat": "rbxassetid://7734051454",
+    "layers": "rbxassetid://7743868936",
+    "chevron-right": "rbxassetid://7733717755",
+    "chevrons-right": "rbxassetid://7733919682",
+    "folder-plus": "rbxassetid://7733799092",
+    "alarm-check": "rbxassetid://7733655912",
+    "arrow-up-right": "rbxassetid://7733673646",
+    "user-plus": "rbxassetid://7743875759",
+    "file-minus": "rbxassetid://7733936115",
+    "cloud-drizzle": "rbxassetid://7733920226",
+    "stretch-vertical": "rbxassetid://8997387862",
+    "align-vertical-distribute-start": "rbxassetid://8997382428",
+    "unlink": "rbxassetid://7743875149",
+    "wand": "rbxassetid://8997388430",
+    "regex": "rbxassetid://7734051188",
+    "command": "rbxassetid://7733924046",
+    "haze": "rbxassetid://7733955969",
+    "trash": "rbxassetid://7743873871",
+    "battery-full": "rbxassetid://7733674503",
+    "flag-triangle-left": "rbxassetid://7733798509",
+    "server-off": "rbxassetid://7734053361",
+    "loader-2": "rbxassetid://7733989869",
+    "monitor-speaker": "rbxassetid://7743869988",
+    "shuffle": "rbxassetid://7734057059",
+    "tablet": "rbxassetid://7743872620",
+    "cloud-moon": "rbxassetid://7733920519",
+    "clipboard-x": "rbxassetid://7733734668",
+    "pocket": "rbxassetid://7734042139",
+    "watch": "rbxassetid://7743877668",
+    "file-plus": "rbxassetid://7733788885",
+    "locate": "rbxassetid://7733992469",
+    "share": "rbxassetid://7734053697",
+    "thermometer-snowflake": "rbxassetid://7743873074",
+    "volume-1": "rbxassetid://7743877081",
+    "arrow-left-right": "rbxassetid://8997382869",
+    "coffee": "rbxassetid://7733752630",
+    "chevron-last": "rbxassetid://8997383390",
+    "cloud-hail": "rbxassetid://7733920444",
+    "alarm-clock-off": "rbxassetid://7733656003",
+    "pound-sterling": "rbxassetid://7734042354",
+    "tent": "rbxassetid://7734078943",
+    "toggle-left": "rbxassetid://7734091286",
+    "dollar-sign": "rbxassetid://7733770599",
+    "sunrise": "rbxassetid://7743872365",
+    "sunset": "rbxassetid://7734070982",
+    "code": "rbxassetid://7733749837",
+    "thumbs-down": "rbxassetid://7734084236",
+    "trending-up": "rbxassetid://7743874262",
+    "clock-12": "rbxassetid://8997384150",
+    "rocking-chair": "rbxassetid://7734051769",
+    "check-square": "rbxassetid://7733919526",
+    "cpu": "rbxassetid://7733765045",
+    "palette": "rbxassetid://7734021595",
+    "minimize-2": "rbxassetid://7733997870",
+    "cloud-sun": "rbxassetid://7733746880",
+    "copyleft": "rbxassetid://7733764196",
+    "archive": "rbxassetid://7733911621",
+    "building": "rbxassetid://7733701625",
+    "image-minus": "rbxassetid://7733963797",
+    "italic": "rbxassetid://7733964917",
+    "link-2-off": "rbxassetid://7733975283",
+    "sort-asc": "rbxassetid://7734060715",
+    "underline": "rbxassetid://7743874904",
+    "gitlab": "rbxassetid://7733954246",
+    "file-minus-2": "rbxassetid://7733936010",
+    "play-circle": "rbxassetid://7734037784",
+    "clock-8": "rbxassetid://8997385352",
+    "file-input": "rbxassetid://7733935917",
+    "beaker": "rbxassetid://7733674922",
+    "shopping-bag": "rbxassetid://7734056747",
+    "navigation": "rbxassetid://7734020989",
+    "moon": "rbxassetid://7743870134",
+    "align-vertical-space-between": "rbxassetid://8997382793",
+    "glasses": "rbxassetid://7733954403",
+    "clipboard-copy": "rbxassetid://7733920037",
+    "feather": "rbxassetid://7733777166",
+    "skip-forward": "rbxassetid://7734058495",
+    "wind": "rbxassetid://7743878264",
+    "frown": "rbxassetid://7733799591",
+    "move-vertical": "rbxassetid://7743870608",
+    "umbrella": "rbxassetid://7743874820",
+    "package": "rbxassetid://7734021469",
+    "chevrons-up": "rbxassetid://7733723433",
+    "download": "rbxassetid://7733770755",
+    "eye": "rbxassetid://7733774602",
+    "files": "rbxassetid://7743867811",
+    "arrow-down-right": "rbxassetid://7733672831",
+    "code-2": "rbxassetid://7733920644",
+    "wrap-text": "rbxassetid://8997388548",
+    "file-digit": "rbxassetid://7733935829",
+    "x-square": "rbxassetid://7743878737",
+    "clipboard": "rbxassetid://7733734762",
+    "maximize-2": "rbxassetid://7733992901",
+    "send": "rbxassetid://7734053039",
+    "alarm-clock": "rbxassetid://7733656100",
+    "sliders": "rbxassetid://7734058803",
+    "refresh-ccw": "rbxassetid://7734050715",
+    "music": "rbxassetid://7734020554",
+    "banknote": "rbxassetid://7733674153",
+    "hard-drive": "rbxassetid://7733955793",
+    "search": "rbxassetid://7734052925",
+    "layout-list": "rbxassetid://7733970442",
+    "edit": "rbxassetid://7733771472",
+    "contrast": "rbxassetid://7733764005",
+    "wifi": "rbxassetid://7743878148",
+    "swiss-franc": "rbxassetid://7734071038",
+    "ghost": "rbxassetid://7743868000",
+    "laptop": "rbxassetid://7733965386",
+    "clock-4": "rbxassetid://8997384603",
+    "layout-dashboard": "rbxassetid://7733970318",
+    "align-vertical-justify-end": "rbxassetid://8997382584",
+    "circle": "rbxassetid://7733919881",
+    "file-x": "rbxassetid://7733938136",
+    "award": "rbxassetid://7733673987",
+    "corner-left-down": "rbxassetid://7733764448",
+    "arrow-up-left": "rbxassetid://7733673539",
+    "carrot": "rbxassetid://8997382987",
+    "globe-2": "rbxassetid://7733954611",
+    "compass": "rbxassetid://7733924216",
+    "git-branch": "rbxassetid://7733949149",
+    "vibrate": "rbxassetid://7743876302",
+    "pause-circle": "rbxassetid://7734021767",
+    "minus-square": "rbxassetid://7743869899",
+    "mic-off": "rbxassetid://7743869714",
+    "arrow-down-circle": "rbxassetid://7733671763",
+    "move-horizontal": "rbxassetid://7734016210",
+    "chrome": "rbxassetid://7733919783",
+    "radio-receiver": "rbxassetid://7734045155",
+    "shield": "rbxassetid://7734056608",
+    "image-plus": "rbxassetid://7733964016",
+    "more-horizontal": "rbxassetid://7734006080",
+    "slash": "rbxassetid://8997387644",
+    "divide": "rbxassetid://7733769365",
+    "view": "rbxassetid://7743876754",
+    "list": "rbxassetid://7743869612",
+    "printer": "rbxassetid://7734042580",
+    "corner-left-up": "rbxassetid://7733764536",
+    "meh": "rbxassetid://7733993147",
+    "copyright": "rbxassetid://7733764275",
+    "align-end-vertical": "rbxassetid://8997380907",
+    "heart": "rbxassetid://7733956134",
+    "lock": "rbxassetid://7733992528",
+    "align-center": "rbxassetid://7733909776",
+    "signal-high": "rbxassetid://8997387110",
+    "upload-cloud": "rbxassetid://7743875358",
+    "arrow-up-circle": "rbxassetid://7733673466",
+    "git-branch-plus": "rbxassetid://7743868200",
+    "align-vertical-justify-center": "rbxassetid://8997382502",
+    "screen-share-off": "rbxassetid://7734052653",
+    "git-pull-request": "rbxassetid://7733952287",
+    "flag": "rbxassetid://7733798691",
+    "star-half": "rbxassetid://7734068258",
+    "minus": "rbxassetid://7734000129",
+    "mountain": "rbxassetid://7734008868",
+    "volume": "rbxassetid://7743877487",
+    "mouse-pointer-2": "rbxassetid://7734010405",
+    "package-x": "rbxassetid://8997386545",
+    "indian-rupee": "rbxassetid://7733964536",
+    "speaker": "rbxassetid://7734063416",
+    "flame": "rbxassetid://7733798747",
+    "circle-slashed": "rbxassetid://8997383530",
+    "crop": "rbxassetid://7733765140",
+    "clock-11": "rbxassetid://8997384034",
+    "stop-circle": "rbxassetid://7734068379",
+    "align-horizontal-justify-end": "rbxassetid://8997381549",
+    "power-off": "rbxassetid://7734042423",
+    "bell-minus": "rbxassetid://7733675028",
+    "undo": "rbxassetid://7743874974",
+    "link-2": "rbxassetid://7743869163",
+    "lightbulb": "rbxassetid://7733975185",
+    "shrink": "rbxassetid://7734056971",
+    "mail": "rbxassetid://7733992732",
+    "pause": "rbxassetid://7734021897",
+    "bold": "rbxassetid://7733687211",
+    "calendar": "rbxassetid://7733919198",
+    "x-octagon": "rbxassetid://7743878618",
+    "russian-ruble": "rbxassetid://7734052248",
+    "file-code": "rbxassetid://7733779730",
+    "life-buoy": "rbxassetid://7733973479",
+    "import": "rbxassetid://7733964240",
+    "video": "rbxassetid://7743876610",
+    "clock-7": "rbxassetid://8997385147",
+    "align-center-horizontal": "rbxassetid://8997380477",
+    "bell": "rbxassetid://7733911828",
+    "move-diagonal-2": "rbxassetid://7734013178",
+    "message-circle": "rbxassetid://7733993311",
+    "skull": "rbxassetid://7734058599",
+    "battery-charging": "rbxassetid://7733674402",
+    "ruler": "rbxassetid://7734052157",
+    "binary": "rbxassetid://7733678388",
+    "cloud-rain-wind": "rbxassetid://7733746456",
+    "briefcase": "rbxassetid://7733919017",
+    "terminal-square": "rbxassetid://7734079055",
+    "scale": "rbxassetid://7734052454",
+    "lasso": "rbxassetid://7733967892",
+    "piggy-bank": "rbxassetid://7734034513",
+    "battery-low": "rbxassetid://7733674589",
+    "arrow-up": "rbxassetid://7733673717",
+    "list-plus": "rbxassetid://7733984995",
+    "bookmark-plus": "rbxassetid://7734111084",
+    "box-select": "rbxassetid://7733696665",
+    "filter": "rbxassetid://7733798407",
+    "play": "rbxassetid://7743871480",
+    "align-vertical-space-around": "rbxassetid://8997382708",
+    "calculator": "rbxassetid://7733919105",
+    "bell-ring": "rbxassetid://7733675275",
+    "plane": "rbxassetid://7734037723",
+    "plus-circle": "rbxassetid://7734040271",
+    "power": "rbxassetid://7734042493",
+    "phone-missed": "rbxassetid://7734029465",
+    "percent": "rbxassetid://7743870852",
+    "jersey-pound": "rbxassetid://7733965029",
+    "mouse-pointer": "rbxassetid://7743870392",
+    "box": "rbxassetid://7733917120",
+    "separator-vertical": "rbxassetid://7734053213",
+    "snowflake": "rbxassetid://7734059180",
+    "sort-desc": "rbxassetid://7743871973",
+    "flag-triangle-right": "rbxassetid://7733798634",
+    "bar-chart-2": "rbxassetid://7733674239",
+    "hand-metal": "rbxassetid://7733955664",
+    "map": "rbxassetid://7733992829",
+    "eye-off": "rbxassetid://7733774495",
+    "align-end-horizontal": "rbxassetid://8997380820",
+    "cloud-rain": "rbxassetid://7733746651",
+    "contact": "rbxassetid://7743866666",
+    "signal": "rbxassetid://8997387546",
+    "mouse-pointer-click": "rbxassetid://7734010488",
+    "settings-2": "rbxassetid://8997386997",
+    "sidebar-open": "rbxassetid://7734058165",
+    "unlink-2": "rbxassetid://7743875069",
+    "pause-octagon": "rbxassetid://7734021827",
+    "user-minus": "rbxassetid://7743875629",
+    "cloud": "rbxassetid://7733746980",
+    "arrow-right-circle": "rbxassetid://7733673229",
+    "align-horizonal-distribute-center": "rbxassetid://8997381028",
+    "fast-forward": "rbxassetid://7743867090",
+    "volume-2": "rbxassetid://7743877250",
+    "grab": "rbxassetid://7733954884",
+    "arrow-right": "rbxassetid://7733673345",
+    "chevron-down": "rbxassetid://7733717447",
+    "volume-x": "rbxassetid://7743877381",
+    "cloud-snow": "rbxassetid://7733746798",
+    "car": "rbxassetid://7733708835",
+    "bluetooth-connected": "rbxassetid://7734110952",
+    "CD": "rbxassetid://7734110220",
+    "cookie": "rbxassetid://8997385628",
+    "message-square": "rbxassetid://7733993369",
+    "repeat-1": "rbxassetid://7734051342",
+    "codepen": "rbxassetid://7733920768",
+    "voicemail": "rbxassetid://7743876916",
+    "text-cursor-input": "rbxassetid://8997388094",
+    "package-check": "rbxassetid://8997386143",
+    "shopping-cart": "rbxassetid://7734056813",
+    "corner-down-right": "rbxassetid://7733764385",
+    "folder-open": "rbxassetid://8997386062",
+    "charge": "rbxassetid://8997383136",
+    "layout-grid": "rbxassetid://7733970390",
+    "clock": "rbxassetid://7733734848",
+    "corner-up-left": "rbxassetid://7733764800",
+    "align-horizontal-justify-start": "rbxassetid://8997381652",
+    "git-merge": "rbxassetid://7733952195",
+    "verified": "rbxassetid://7743876142",
+    "redo": "rbxassetid://7743871739",
+    "hexagon": "rbxassetid://7743868527",
+    "square": "rbxassetid://7743872181",
+    "align-horizontal-justify-center": "rbxassetid://8997381461",
+    "chevrons-up-down": "rbxassetid://7733723321",
+    "bus": "rbxassetid://7733701715",
+    "file-plus-2": "rbxassetid://7733788816",
+    "alarm-plus": "rbxassetid://7733658066",
+    "divide-square": "rbxassetid://7733769261",
+    "pie-chart": "rbxassetid://7734034378",
+    "signal-zero": "rbxassetid://8997387434",
+    "hammer": "rbxassetid://7733955511",
+    "history": "rbxassetid://7733960880",
+    "align-vertical-justify-start": "rbxassetid://8997382639",
+    "flask-round": "rbxassetid://7733798957",
+    "wifi-off": "rbxassetid://7743878056",
+    "zoom-out": "rbxassetid://7743879082",
+    "toggle-right": "rbxassetid://7743873539",
+    "monitor": "rbxassetid://7734002839",
+    "x": "rbxassetid://7743878857",
+    "align-horizonal-distribute-end": "rbxassetid://8997381144",
+    "user": "rbxassetid://7743875962",
+    "sprout": "rbxassetid://7743872071",
+    "move": "rbxassetid://7743870731",
+    "gavel": "rbxassetid://7733800044",
+    "package-minus": "rbxassetid://8997386266",
+    "drumstick": "rbxassetid://8997385789",
+    "forward": "rbxassetid://7733799371",
+    "sidebar-close": "rbxassetid://7734058092",
+    "electricity": "rbxassetid://7733771628",
+    "plus": "rbxassetid://7734042071",
+    "pipette": "rbxassetid://7743871384",
+    "cloud-lightning": "rbxassetid://7733741741",
+    "lasso-select": "rbxassetid://7743868832",
+    "phone-call": "rbxassetid://7734027264",
+    "droplet": "rbxassetid://7733770982",
+    "key": "rbxassetid://7733965118",
+    "map-pin": "rbxassetid://7733992789",
+    "navigation-2": "rbxassetid://7734020942",
+    "list-minus": "rbxassetid://7733980795",
+    "chevron-up": "rbxassetid://7733919605",
+    "layout-template": "rbxassetid://7733970494",
+    "no_entry": "rbxassetid://7734021118",
+    "scan": "rbxassetid://8997386861",
+    "arrow-big-up": "rbxassetid://7733671663",
+    "bookmark-minus": "rbxassetid://7733689754",
+    "activity": "rbxassetid://7733655755",
+    "grid": "rbxassetid://7733955179",
+    "user-x": "rbxassetid://7743875879",
+    "alert-circle": "rbxassetid://7733658271",
+    "menu": "rbxassetid://7733993211",
+    "form-input": "rbxassetid://7733799275",
+    "rss": "rbxassetid://7734052075",
+    "loader": "rbxassetid://7733992358",
+    "align-vertical-distribute-end": "rbxassetid://8997382326",
+    "strikethrough": "rbxassetid://7734068425",
+    "mic": "rbxassetid://7743869805",
+    "landmark": "rbxassetid://7733965184",
+    "crosshair": "rbxassetid://7733765307",
+    "alert-octagon": "rbxassetid://7733658335",
+    "anchor": "rbxassetid://7733911490",
+    "separator-horizontal": "rbxassetid://7734053146",
+    "chevron-left": "rbxassetid://7733717651",
+    "flask-conical": "rbxassetid://7733798901",
+    "wallet": "rbxassetid://7743877573",
+    "euro": "rbxassetid://7733771891",
+    "trash-2": "rbxassetid://7743873772",
+    "check-circle": "rbxassetid://7733919427",
+    "layout": "rbxassetid://7733970543",
+    "droplets": "rbxassetid://7733771078",
+    "align-start-vertical": "rbxassetid://8997382085",
+    "rotate-cw": "rbxassetid://7734051957",
+    "minimize": "rbxassetid://7733997941",
+    "arrow-down-left": "rbxassetid://7733672282",
+    "signal-medium": "rbxassetid://8997387319",
+    "align-vertical-distribute-center": "rbxassetid://8997382212",
+    "image-off": "rbxassetid://7733963907",
+    "cloudy": "rbxassetid://7733747106",
+    "align-left": "rbxassetid://7733911357",
+    "film": "rbxassetid://7733942579",
+    "chevrons-down": "rbxassetid://7733720604",
+    "pointer": "rbxassetid://7734042307",
+    "folder": "rbxassetid://7733799185",
+    "chevrons-left": "rbxassetid://7733720701",
+    "shield-off": "rbxassetid://7734056540",
+    "wrench": "rbxassetid://7743878358"
+  }
 }
-
-
-
-local MainUI = game:GetObjects("rbxassetid://7835727566")[1]
-print("SolarisLib Loaded!")
-local function MakeDraggable(topbarobject, object) 
-    pcall(function()
-		local dragging, dragInput, mousePos, framePos = false
-		topbarobject.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = true
-				mousePos = input.Position
-				framePos = object.Position
-
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
-					end
-				end)
-			end
-		end)
-		topbarobject.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				dragInput = input
-			end
-		end)
-		UserInputService.InputChanged:Connect(function(input)
-			if input == dragInput and dragging then
-				local delta = input.Position - mousePos
-				object.Position  = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
-			end
-		end)
-	end)
-end
-
-
-function Ripple(Object)
-	spawn(function()
-		local Circle = Instance.new("ImageLabel")
-		Circle.Parent = Object
-		Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-		Circle.BackgroundTransparency = 1.000
-		Circle.ZIndex = 10
-		Circle.Image = "rbxassetid://266543268"
-		Circle.ImageColor3 = Color3.fromRGB(210,210,210)
-		Circle.ImageTransparency = 0.8
-		Circle.Position = UDim2.new(0, Mouse.X - Circle.AbsolutePosition.X, 0, Mouse.Y - Circle.AbsolutePosition.Y)
-		local Size = Object.AbsoluteSize.X
-		TweenService:Create(Circle, TweenInfo.new(0.5), {Position = UDim2.fromScale(math.clamp(Mouse.X - Object.AbsolutePosition.X, 0, Object.AbsoluteSize.X)/Object.AbsoluteSize.X,Object,math.clamp(Mouse.Y - Object.AbsolutePosition.Y, 0, Object.AbsoluteSize.Y)/Object.AbsoluteSize.Y) - UDim2.fromOffset(Size/2,Size/2), ImageTransparency = 1, Size = UDim2.fromOffset(Size,Size)}):Play()
-		spawn(function()
-			wait(0.5)
-			Circle:Destroy()
-		end)
-	end)
-end
-
-function SolarisLib:Notification(title, desc)
-    Notify:New(title,desc)
-end    
-
-function SolarisLib:New(Config)
-    if not isfolder(Config.FolderToSave) then 
-        makefolder(Config.FolderToSave)
-    end
-    
-    if not isfolder(Config.FolderToSave .. "/configs") then 
-        makefolder(Config.FolderToSave .. "/configs")
-    end
-    
-    if not isfile(Config.FolderToSave .. "/settings.txt") then
-        local content = {}
-        for i,v in pairs(SolarisLib.Settings) do
-            content[i] = v
-        end
-        writefile(Config.FolderToSave .. "/settings.txt", tostring(http:JSONEncode(content)))
-    end    
-    SolarisLib.Settings = http:JSONDecode(readfile(Config.FolderToSave .. "/settings.txt"))
-
-    local closebindbinding = false
-    local fs = false
-    local tabcount = 0
-    local uitoggled = true
-    local tabmenutoggled = false
-    local TabPreset = game:GetObjects("rbxassetid://6958615840")[1]
-    local SectionPreset = game:GetObjects("rbxassetid://7121846230")[1]
-    local ContainerPreset = game:GetObjects("rbxassetid://7121886326")[1]
-    local MFrame = MainUI.MainFrame
-    MainUI.Parent = Solaris
-    MFrame.TopBar.TopFrameTitle.Text = Config.Name
-    MakeDraggable(MFrame.TopBar, MainUI) 
-    local oldScript = script
-
-    local MenuBtnPreset = game:GetObjects("rbxassetid://7037141226")[1]
-    local MusicBtn = MenuBtnPreset:Clone()
-    MusicBtn.Parent = MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame
-    MusicBtn.Position = UDim2.new(0,0,0,5)
-    MusicBtn.Text = "Music"
-    MusicBtn.MouseEnter:Connect(function() TweenService:Create(MusicBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play() end)
-    MusicBtn.MouseLeave:Connect(function() TweenService:Create(MusicBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play() end)
-    local SettingsBtn = MenuBtnPreset:Clone()
-    SettingsBtn.Parent = MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame
-    SettingsBtn.Position = UDim2.new(0,0,0,25)
-    SettingsBtn.Text = "Settings"
-    SettingsBtn.MouseEnter:Connect(function() TweenService:Create(SettingsBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play() end)
-    SettingsBtn.MouseLeave:Connect(function() TweenService:Create(SettingsBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play() end)
-
-
-    function MusicConstructor()
-        local abuttonhold = false
-        local playing = false
-        local MarketplaceService = game:GetService("MarketplaceService")
-        local MusicFrame, MusicPreset = game:GetObjects("rbxassetid://7296373622")[1], game:GetObjects("rbxassetid://7296615234")[1]
-        MusicFrame.Parent = Solaris
-        MusicFrame.ZIndex = 5
-        MusicFrame.Visible = SolarisLib.Settings.ShowMusicOnLaunch
-        MusicFrame.Frame.Title.Text = "Not Playing"
-        MusicFrame.Frame.Progress.ProgressFrame.Size = UDim2.new(0,0,1,0)
-        MusicFrame.Frame.AddBtn.AutoButtonColor = false
-
-        MakeDraggable(MusicFrame.Frame.TopBar,MusicFrame)
-        MusicFrame.Frame.TopBar.CloseBtn.MouseButton1Click:Connect(function()
-            MusicFrame.Visible = false
-        end)
-        MusicFrame.Frame.TopBar.CloseBtn.MouseEnter:Connect(function() TweenService:Create(MusicFrame.Frame.TopBar.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-        MusicFrame.Frame.TopBar.CloseBtn.MouseLeave:Connect(function() TweenService:Create(MusicFrame.Frame.TopBar.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-        MusicBtn.MouseButton1Click:Connect(function()
-            MusicFrame.Visible = not MusicFrame.Visible
-            MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Visible = false 
-        end)
-
-        local Sound = Instance.new("Sound")
-        Sound.Name = "Sound"
-        Sound.Parent = MusicFrame
-        Sound.Volume = 3
-        Sound:Stop()
-
-        local Sounds = {}
-        if not isfile(Config.FolderToSave .. "/music.txt") then writefile(Config.FolderToSave .. "/music.txt", tostring(http:JSONEncode({}))) end
-        Sounds = http:JSONDecode(readfile(Config.FolderToSave .. "/music.txt"))
-
-        function Save()
-            local content = {}
-            for i,v in pairs(Sounds) do
-                content[i] = v
-            end
-            writefile(Config.FolderToSave .. "/music.txt", tostring(http:JSONEncode(content)))
-        end    
-
-        local function PlaySong(id, title)
-            Sound:Stop()
-            playing = true
-            Sound.SoundId = "rbxassetid://" .. id
-            Sound:Resume()
-            MusicFrame.Frame.Play.Image = "http://www.roblox.com/asset/?id=6026663719"
-            MusicFrame.Frame.Title.Text = title
-        end    
-
-        local function RefreshList(list)
-            for i,v in next, MusicFrame.Frame.MusicList.Scroll:GetChildren() do
-                if v.Name == "Btn" then
-                    v:Destroy()
-                end    
-            end
-            for i,v in next, list do
-                local success, info = pcall(MarketplaceService.GetProductInfo, MarketplaceService, v)
-                if success and info.AssetTypeId == 3 then
-                    local Btn = MusicPreset:Clone()
-                    Btn.Parent = MusicFrame.Frame.MusicList.Scroll
-                    Btn.Title.Text = info.Name
-
-                    Btn.MouseButton1Click:Connect(function()
-                        PlaySong(v, info.Name)
-                    end)
-
-                    Btn.Delete.MouseButton1Click:Connect(function()
-                        for g,c in next, Sounds do
-                            if c == v then
-                                table.remove(Sounds, g)
-                            end    
-                        end    
-                        Save()
-                        Btn:Destroy()   
-                    end)
-                end
-            end    
-        end 
-        
-        MusicFrame.Frame.Play.MouseButton1Click:Connect(function()
-            playing = not playing
-            if playing then Sound:Pause() else Sound:Resume() end
-            MusicFrame.Frame.Play.Image = playing and "http://www.roblox.com/asset/?id=6026663699" or "http://www.roblox.com/asset/?id=6026663719"
-        end)
-
-        MusicFrame.Frame.AddBtn.MouseButton1Click:Connect(function()
-            local id = MusicFrame.Frame.AddSong.Text
-            if not table.find(Sounds, id) then
-                table.insert(Sounds, id)
-                Save()
-                RefreshList(Sounds)
-            end    
-        end)
-
-        MusicFrame.Frame.AddBtn.MouseEnter:Connect(function()
-            abuttonhold = true
-        end)
-
-        MusicFrame.Frame.AddBtn.MouseLeave:Connect(function()
-            abuttonhold = false
-        end)
-
-        RefreshList(Sounds)
-
-        game:GetService("RunService").RenderStepped:Connect(function()
-            local time = math.floor(Sound.TimePosition)
-            local timesecs = time % 60
-            local timemins = math.floor(time / 60)
-            if string.len(timesecs) < 2 then timesecs = "0" .. timesecs end
-            if string.len(timemins) < 2 then timemins = "0" .. timemins end
-            local timemax = math.floor(Sound.TimeLength)
-            local timemaxsecs = timemax % 60
-            local timemaxmins = math.floor(timemax / 60)
-            if string.len(timemaxsecs) < 2 then timemaxsecs = "0" .. timemaxsecs end
-            if string.len(timemaxmins) < 2 then timemaxmins = "0" .. timemaxmins end
-            MusicFrame.Frame.Timer1.Text = timemins .. ":" .. timesecs
-            MusicFrame.Frame.Timer2.Text = timemaxmins .. ":" .. timemaxsecs
-            MusicFrame.Frame.Progress.ProgressFrame.Size = UDim2.new(Sound.TimePosition / Sound.TimeLength,0,1,0)
-        end)
-
-        
-        spawn(function()
-            while wait() do
-                MusicFrame.Frame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
-                MusicFrame.Frame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                MusicFrame.Frame.TopBar.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                MusicFrame.Frame.MusicList.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                MusicFrame.Frame.AddBtn.BackgroundColor3 = abuttonhold and SolarisLib.Themes[SolarisLib.Settings.Theme].ButtonHold or SolarisLib.Themes[SolarisLib.Settings.Theme].Button
-                MusicFrame.Frame.Progress.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Slider
-                MusicFrame.Frame.Progress.ProgressFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderInc
-                MusicFrame.Frame.AddSong.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Textbox
-            end
-        end)
-    end  
-
-    function SettingsConstructor()
-        local Settings, SettingsFrame, TabPreset, ContainerPreset, TogglePreset, BindPreset, DropdownPreset, OptionPreset = {}, game:GetObjects("rbxassetid://7167491516")[1], game:GetObjects("rbxassetid://7177524915")[1], game:GetObjects("rbxassetid://7203599409")[1], game:GetObjects("rbxassetid://7208643984")[1], game:GetObjects("rbxassetid://7219277948")[1], game:GetObjects("rbxassetid://7435055269")[1], game:GetObjects("rbxassetid://7435032496")[1]
-        local fs = true
-        local SFrame = SettingsFrame.Main
-        SettingsFrame.Parent = MFrame
-        SFrame.TopBar.CloseBtn.MouseEnter:Connect(function() TweenService:Create(SFrame.TopBar.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-        SFrame.TopBar.CloseBtn.MouseLeave:Connect(function() TweenService:Create(SFrame.TopBar.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-        SettingsBtn.MouseButton1Click:Connect(function()
-            SettingsFrame.Visible = not SettingsFrame.Visible
-            MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Visible = false 
-        end)
-        SFrame.TopBar.CloseBtn.MouseButton1Click:Connect(function()
-            SettingsFrame.Visible = false
-        end)
-
-        function SaveSettings()
-            local content = {}
-            for i,v in pairs(SolarisLib.Settings) do
-                content[i] = v
-            end
-            writefile(Config.FolderToSave .. "/settings.txt", tostring(http:JSONEncode(content)))
-        end    
-
-        
-        spawn(function()
-            while wait() do
-                SFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
-                SFrame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                SFrame.TopBar.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                SFrame.TopBar.TopFrameTitle.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                SFrame.TabHolder.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-
-            end
-        end)
-
-        function Settings:Tab(text)
-            local Tab = TabPreset:Clone()
-            local Container = ContainerPreset:Clone()
-            Tab.Parent = SFrame.TabHolder
-            Tab.Text = text
-            Tab.Size = UDim2.new(0,Tab.TextBounds.X,1,0)
-            Container.Parent = SFrame.ContainerFolder
-            Container.Visible = false
-
-            if fs then
-                Tab.TextTransparency = 0
-                Container.Visible = true
-                fs = false
-            end    
-
-            Tab.MouseButton1Click:Connect(function()
-                for i,v in next, SFrame.TabHolder:GetChildren() do
-                    if v.Name == "Tab" then
-                        v.TextTransparency = 0.4
-                    end    
-                end      
-                for i,v in next, SFrame.ContainerFolder:GetChildren() do
-                    if v.Name == "Container" then
-                        v.Visible = false
-                    end    
-                end      
-                Tab.TextTransparency = 0      
-                Container.Visible = true
-            end)
-            local TabHold = {}
-            function TabHold:ToggleSetting(title, desc, def, path)
-                local value = SolarisLib.Settings[path] or def
-                local Toggle = TogglePreset:Clone()
-                Toggle.Parent = Container
-                Toggle.Title.Text = title
-                Toggle.Desc.Text = desc
-
-                local function Tween(val)
-                    TweenService:Create(Toggle.ToggleFrame.ToggleToggled.ToggleIco,TweenInfo.new(.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency= val and 0 or 1}):Play()
-                    TweenService:Create(Toggle.ToggleFrame.ToggleToggled.ToggleIco,TweenInfo.new(.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size= val and UDim2.new(1,-2,1,-2) or UDim2.new(1,-6,1,-6)}):Play()
-                end    
-
-                local function SetValue(val)
-                    Tween(val)
-                    SolarisLib.Settings[path] = val
-                    value = val
-                    SaveSettings()
-                end    
-
-                Tween(value)
-
-                Toggle.MouseButton1Click:Connect(function()
-                    SetValue(not value)     
-                end)
-
-                spawn(function()
-                    while wait() do
-                        Toggle.ToggleFrame.ToggleToggled.BackgroundColor3 = value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
-                        Toggle.ToggleFrame.BackgroundColor3 = value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleFrame
-                        Toggle.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-            end
-            function TabHold:BindSetting(title, desc, def, path)
-                local value = SolarisLib.Settings[path] or def
-                local Bind = BindPreset:Clone()
-                Bind.Parent = Container
-                Bind.Title.Text = title
-                Bind.Desc.Text = desc
-
-                function SetValue(val)
-                    closebindbinding = false
-                    value = val or value
-                    value = value.Name or value
-                    Bind.BText.Text = value
-                    SolarisLib.Settings[path] = value
-                    SaveSettings()
-                end    
-                SetValue(value)
-
-                Bind.InputEnded:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if closebindbinding then return end
-                        closebindbinding = true
-                        Bind.BText.Text = "..."
-                    end
-                end)
-
-                UserInputService.InputBegan:Connect(function(Input)
-                    if UserInputService:GetFocusedTextBox() then return end
-                    if closebindbinding then
-                        local Key
-                        pcall(function()
-                            if not CheckKey(BlacklistedKeys, Input.KeyCode) then
-                                Key = Input.KeyCode
-                            end
-                        end)
-                        pcall(function()
-                            if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then
-                                Key = Input.UserInputType
-                            end
-                        end)
-                        Key = Key or value
-                        SetValue(Key)
-                    end
-                end)
-
-                spawn(function()
-                    while wait() do
-                        Bind.Desc.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                        Bind.BText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                        Bind.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-            
-            end    
-            function TabHold:Dropdown(title, desc, list, def, path)
-                local opened = false
-                local value = SolarisLib.Settings[path] or def
-                local Dropdown = DropdownPreset:Clone()
-                Dropdown.Parent = Container
-                Dropdown.Title.Text = title
-                Dropdown.Desc.Text = desc
-                Dropdown.Main.Current.Text = value
-
-                function Toggle()
-                    Dropdown.Main.Holder.Visible = opened
-                    Dropdown.Main.Holder.Size = opened and UDim2.new(1,0,0,Dropdown.Main.Holder.UIListLayout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,0)
-                    if opened then
-                        if (Dropdown.Main.Holder.UIListLayout.AbsoluteContentSize.Y + Container.UIListLayout.AbsoluteContentSize.Y) > 190 then
-                            Container.CanvasSize = UDim2.new(0,0,0,Dropdown.Main.Holder.UIListLayout.AbsoluteContentSize.Y + Container.UIListLayout.AbsoluteContentSize.Y)
-                        end    
-                    else
-                        Container.CanvasSize = UDim2.new(0,0,0,Container.UIListLayout.AbsoluteContentSize.Y) 
-                    end
-                    TweenService:Create(Dropdown.Main.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = opened and 180 or 0}):Play()
-                end   
-                
-                Dropdown.InputEnded:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        opened = not opened
-                        Toggle()
-                    end
-                end)
-
-                local function AddOptions(opts)
-                    for _,option in pairs(opts) do
-                        local Option = OptionPreset:Clone()
-                        Option.Parent = Dropdown.Main.Holder
-                        Option.Text = option
-
-                        Option.MouseButton1Click:Connect(function()
-                            value = option
-                            SolarisLib.Settings[path] = value
-                            Dropdown.Main.Current.Text = value
-                            SaveSettings()
-                        end)
-
-                        spawn(function()
-                            while wait() do
-                               Option.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor       
-                            end
-                        end)
-                    end   
-                end    
-
-                spawn(function()
-                    while wait() do
-                        Dropdown.Main.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                        Dropdown.Main.Holder.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                    end
-                end)
-                AddOptions(list)
-            end
-            return TabHold
-        end   
-        
-        local general = Settings:Tab("General")
-        general:ToggleSetting("Show Music On Launch", "Shows the music menu when you load Snow Hub", true, "ShowMusicOnLaunch")
-        general:BindSetting("Close Bind", "Hides/Shows the main window when pressed.", Enum.KeyCode.RightControl, "CloseBind")
-        
-        local appearance = Settings:Tab("Appearance")
-        appearance:Dropdown("Theme", "The look of the user interface", {"Default", "Discord", "Red", "Green", "Blue"}, "Default", "Theme")
-
-    end 
-    MusicConstructor()
-    SettingsConstructor()
-
-    local function OpenTabMenu()
-        TweenService:Create(MFrame.TabMenu,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Position = UDim2.new(0,0,0,0)}):Play() 
-    end   
-    
-    local function CloseTabMenu()
-        TweenService:Create(MFrame.TabMenu,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Position = UDim2.new(-0.37, -8, 0, 0)}):Play() 
-    end 
-
-    MFrame.TopBar.TabListBtn.MouseButton1Click:Connect(function()
-        OpenTabMenu()
-    end)
-
-    MFrame.TabMenu.Menu.Top.MenuCloseBtn.MouseButton1Click:Connect(function()
-        CloseTabMenu()
-    end)
-
-    MFrame.TopBar.ButtonHolder.SearchBtn.MouseButton1Click:Connect(function()
-        MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.Visible = not MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.Visible
-        MFrame.TopBar.TopFrameTitle.Visible = not MFrame.TopBar.TopFrameTitle.Visible
-    end)
-
-    MFrame.TopBar.ButtonHolder.CloseBtn.MouseEnter:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-    MFrame.TopBar.ButtonHolder.CloseBtn.MouseLeave:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.CloseBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-    MFrame.TopBar.ButtonHolder.SearchBtn.MouseEnter:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.SearchBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-    MFrame.TopBar.ButtonHolder.SearchBtn.MouseLeave:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.SearchBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-    MFrame.TopBar.ButtonHolder.MenuBtn.MouseEnter:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.MenuBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-    MFrame.TopBar.ButtonHolder.MenuBtn.MouseLeave:Connect(function() TweenService:Create(MFrame.TopBar.ButtonHolder.MenuBtn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-    MFrame.TopBar.TabListBtn.MouseEnter:Connect(function() TweenService:Create(MFrame.TopBar.TabListBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0}):Play() end)
-    MFrame.TopBar.TabListBtn.MouseLeave:Connect(function() TweenService:Create(MFrame.TopBar.TabListBtn,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency = 0.4}):Play() end)
-    MFrame.TopBar.ButtonHolder.MenuBtn.MouseButton1Click:Connect(function() MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Visible = not MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Visible end)
-
-    MFrame.TopBar.ButtonHolder.CloseBtn.MouseButton1Click:Connect(function()
-        uitoggled = not uitoggled
-        MainUI.Visible = uitoggled
-    end)
-
-
-    function SearchConstructor()
-        function StitchElements()
-            local elms = {}
-            for i,v in next, SolarisLib.CurrentTab:GetDescendants() do
-                if string.find(v.Name, "element") then
-                    table.insert(elms, v)        
-                end
-            end   
-            return elms
-        end    
-
-        MFrame.TopBar.ButtonHolder.SearchBtn.TextBox:GetPropertyChangedSignal("Text"):Connect(function()
-            for i,v in pairs(StitchElements()) do
-                if string.len(MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.Text) >= 1 then
-                    if string.find(string.sub(v.Name:lower(),0,-8), MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.Text:lower()) then
-                        v.Visible = true
-                    else
-                        v.Visible = false
-                    end 
-                else
-                    v.Visible = true                 
-                end
-            end    		
-        end)
-    end    
-
-    SearchConstructor()
-    
-
-	UserInputService.InputBegan:Connect(function(Input)
-		if (Input.KeyCode.Name == SolarisLib.Settings.CloseBind or Input.UserInputType.Name == SolarisLib.Settings.CloseBind) and not closebindbinding then
-            uitoggled = not uitoggled
-            MainUI.Visible = uitoggled
-		end
-	end)
-
-    spawn(function()
-        while wait() do
-            MFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
-            MFrame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-            MFrame.TopBar.ButtonHolder.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.ButtonHolder.MenuBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.ButtonHolder.SearchBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.TabListBtn.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.TopFrameTitle.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TabMenu.Menu.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Menu
-            MFrame.TabMenu.Menu.Top.MenuCloseBtn.ImageLabel.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
-            MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.PlaceholderColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-            MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Frame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-        end
-    end)
-
-    function SolarisLib:LoadCfg(cfg)
-        local content = http:JSONDecode(cfg)
-        table.foreach(content, function(a,b)
-            if SolarisLib.Flags[a] then
-                spawn(function() SolarisLib.Flags[a]:Set(b) end)
-            else
-                warn("cfg loader - could not find", a ,b )
-            end
-        end)
-    end
-    
-    function SolarisLib:SaveCfg(name)
-        local content = {}
-        for i,v in pairs(SolarisLib.Flags) do
-            content[i] = v.Value
-        end
-        writefile(Config.FolderToSave .. "/configs/" .. name .. ".txt", tostring(http:JSONEncode(content)))
-    end
-    
-
-    local TabHolder = {}
-    function TabHolder:Tab(text)
-        local Tab = TabPreset:Clone()
-        Tab.AutoButtonColor = false
-        Tab.Parent = MFrame.TabMenu.Menu.Holder
-        Tab.Text =  text
-        Tab.TextSize = 14
-
-
-        local Container =  ContainerPreset:Clone()
-        Container.Parent = MFrame.ContainerFolder
-        Container.Visible = false
-
-        if fs == false then
-            fs = true
-            Container.Visible = true
-            Tab.UIPadding.PaddingLeft = UDim.new(0,10)
-            Tab.TextTransparency = 0
-            Tab.BackgroundTransparency = 0  
-            SolarisLib.CurrentTab = Container  
-        end    
-
-        spawn(function()
-            while wait() do
-                Tab.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                Tab.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TabToggled
-                Container.CanvasSize = UDim2.new(0,0,0,Container.UIListLayout.AbsoluteContentSize.Y + 26)
-            end
-        end)
-
-
-        
-        Tab.MouseButton1Click:Connect(function()
-            for i,v in next, MFrame.TabMenu.Menu.Holder:GetChildren() do
-                if v:IsA("TextButton") then
-                    TweenService:Create(v,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0.4}):Play() 
-                    TweenService:Create(v,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 1}):Play() 
-                    TweenService:Create(v.UIPadding,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{PaddingLeft = UDim.new(0,5)}):Play() 
-                end    
-                TweenService:Create(Tab,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{TextTransparency = 0}):Play() 
-                TweenService:Create(Tab,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{BackgroundTransparency = 0}):Play() 
-                TweenService:Create(Tab.UIPadding,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{PaddingLeft = UDim.new(0,10)}):Play() 
-            end   
-            for i,v in next, MFrame.ContainerFolder:GetChildren() do
-                if v.Name == "Container" then
-                    v.Visible = false
-                end    
-                Container.Visible = true
-            end
-            tabtoggledname = Tab.Name
-            CloseTabMenu()
-        end)
-
-
-        local SectionHold = {}
-        function SectionHold:Section(text)
-            local Section = SectionPreset:Clone()
-            Section.Parent = Container
-            Section.SectionTitle.Text = text
-
-            spawn(function()
-                while wait() do
-                    Section.SectionTitle.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    Section.Size = UDim2.new(0.9,0,0,Section.UIListLayout.AbsoluteContentSize.Y)
-                end
-            end)
-            local ItemHold = {}
-            function ItemHold:Button(text,callback)
-                local Holding = false
-                local Button = game:GetObjects("rbxassetid://6937142338")[1]
-                Button.Parent = Section
-                Button.Name = text .. "element"
-                Button.ButtonText.Text = text
-                Button.ClipsDescendants = true
-                
-                Button.MouseButton1Click:Connect(function()
-                    callback()
-                    Ripple(Button)
-                end)
-                Button.MouseEnter:Connect(function()
-                    Holding = true
-                end)
-                Button.MouseLeave:Connect(function()
-                    Holding = false
-                end)
-
-                spawn(function()
-                    while wait() do
-                       Button.BackgroundColor3 = Holding and SolarisLib.Themes[SolarisLib.Settings.Theme].ButtonHold or SolarisLib.Themes[SolarisLib.Settings.Theme].Button
-                       Button.ButtonText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-            end    
-            function ItemHold:Toggle(text,def,flag,callback)
-                local Toggle,ToggleMain = {Value = false}, game:GetObjects("rbxassetid://6963155498")[1]
-                ToggleMain.Parent = Section
-                ToggleMain.ToggleText.Text = text
-                ToggleMain.Name = text .. "element"
-
-                function Toggle:Set(value)
-					Toggle.Value = value
-                    TweenService:Create(ToggleMain.ToggleFrame.ToggleToggled.ToggleIco,TweenInfo.new(.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{ImageTransparency= Toggle.Value and 0 or 1}):Play()
-                    TweenService:Create(ToggleMain.ToggleFrame.ToggleToggled.ToggleIco,TweenInfo.new(.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size= Toggle.Value and UDim2.new(1,-2,1,-2) or UDim2.new(1,-6,1,-6)}):Play()
-					return callback(Toggle.Value)
-				end
-				
-				ToggleMain.MouseButton1Click:Connect(function()
-					Toggle.Value = not Toggle.Value
-					Toggle:Set(Toggle.Value)           
-				end)
-
-                spawn(function()
-                    while wait() do
-                        ToggleMain.ToggleFrame.ToggleToggled.BackgroundColor3 = Toggle.Value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].Toggle
-                        ToggleMain.ToggleFrame.BackgroundColor3 = Toggle.Value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleFrame
-                        ToggleMain.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Toggle
-                        ToggleMain.ToggleText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-				Toggle:Set(def)
-                SolarisLib.Flags[flag] = Toggle
-                return Toggle
-            end    
-            function ItemHold:Slider(text,min,max,start,inc,flag,callback)
-                local Slider,SliderMain = {Value = start}, game:GetObjects("rbxassetid://6967573727")[1]
-                SliderMain.Parent = Section
-                SliderMain.SliderText.Text = text
-                SliderMain.Name = text .. "element"
-                local dragging = false
-
-                local function move(Input)
-                    local XSize = math.clamp((Input.Position.X - SliderMain.SliderFrame.AbsolutePosition.X) / SliderMain.SliderFrame.AbsoluteSize.X, 0, 1)
-                    local Increment = inc and (max / ((max - min) / (inc * 4))) or (max >= 50 and max / ((max - min) / 4)) or (max >= 25 and max / ((max - min) / 2)) or (max / (max - min))
-                    local SizeRounded = UDim2.new((math.round(XSize * ((max / Increment) * 4)) / ((max / Increment) * 4)), 0, 1, 0) 
-                    TweenService:Create(SliderMain.SliderFrame.SliderCurrentFrame,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = SizeRounded}):Play() 
-                    local Val = math.round((((SizeRounded.X.Scale * max) / max) * (max - min) + min) * 20) / 20
-                    SliderMain.SliderVal.Text = tostring(Val)
-                    Slider.Value = Val
-                    callback(Slider.Value)
-				end
-				SliderMain.SliderFrame.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = true end end)
-				SliderMain.SliderFrame.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end end)
-				game:GetService("UserInputService").InputChanged:Connect(function(input) if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then move(input) end end)
-
-                function Slider:Set(val)
-                    local a = tostring(val and (val / max) * (max - min) + min) or 0
-					SliderMain.SliderVal.Text = tostring(a)
-                    SliderMain.SliderFrame.SliderCurrentFrame.Size = UDim2.new((val or 0) / max, 0, 1, 0)
-                    Slider.Value = val
-					return callback(Slider.Value)
-				end	
-
-                spawn(function()
-                    while wait() do
-                       SliderMain.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Slider
-                       SliderMain.SliderFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderBar
-                       SliderMain.SliderFrame.SliderCurrentFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderInc
-                       SliderMain.SliderText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                       SliderMain.SliderVal.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-
-                Slider:Set(start)
-                SolarisLib.Flags[flag] = Slider
-                return Slider
-            end    
-            function ItemHold:Dropdown(text,list,def,flag,callback)
-                local Dropdown,DropMain,OptionPreset = {Value = nil, Toggled = false, Options = list}, game:GetObjects("rbxassetid://7027964359")[1], game:GetObjects("rbxassetid://7021432326")[1]
-                DropMain.Parent = Section
-                DropMain.Btn.Title.Text = text
-                DropMain.Name = text .. "element"
-                
-
-                local function ToggleDrop()
-                    Dropdown.Toggled = not Dropdown.Toggled
-                    DropMain.Holder.Size = Dropdown.Toggled and UDim2.new(1,0,0,6+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,0)
-                    TweenService:Create(DropMain,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1,0,0,38+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,32)}):Play() 
-                    TweenService:Create(DropMain.Btn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play() 
-                    DropMain.Holder.Visible = Dropdown.Toggled
-                end  
-
-                local function AddOptions(opts)
-                    for _,option in pairs(opts) do
-                        local Option = OptionPreset:Clone()
-                        Option.Parent = DropMain.Holder
-                        Option.ItemText.Text = option
-                        Option.ClipsDescendants = true
-
-                        Option.MouseButton1Click:Connect(function()
-                            Dropdown.Value = option
-                            DropMain.Btn.Title.Text = text .. " - " .. option
-                            Ripple(Option)
-                            return callback(Dropdown.Value)
-                        end)
-
-                        spawn(function()
-                            while wait() do
-                               Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
-                               DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                            end
-                        end)
-                    end   
-                end    
-
-                function Dropdown:Refresh(opts,del)
-                    if del then
-                        for _,v in pairs(DropMain.Holder:GetChildren()) do
-                            if v:IsA"TextButton" then
-								v:Destroy()
-                                DropMain.Holder.Size = Dropdown.Toggled and UDim2.new(1,0,0,6+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,0)
-                                DropMain.Size = Dropdown.Toggled and UDim2.new(1,0,0,38+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,32)
-							end
-                        end    
-                    end    
-                    AddOptions(opts)
-                end    
-             
-
-                DropMain.Btn.MouseButton1Click:Connect(function()
-                    ToggleDrop()
-                end)
-
-                function Dropdown:Set(val)
-					Dropdown.Value = val
-                    DropMain.Btn.Title.Text = text .. " - " .. val
-					return callback(Dropdown.Value)
-				end
-
-                spawn(function()
-                    while wait() do
-                       DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
-                       DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                       DropMain.Btn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-                Dropdown:Refresh(list,false)
-                Dropdown:Set(def)
-                SolarisLib.Flags[flag] = Dropdown
-                return Dropdown
-            end   
-            function ItemHold:MultiDropdown(text,list,def,flag,callback)
-                local Dropdown,DropMain,OptionPreset = {Value = {}, Toggled = false, Options = list}, game:GetObjects("rbxassetid://7027964359")[1], game:GetObjects("rbxassetid://7021432326")[1]
-                DropMain.Parent = Section
-                DropMain.Btn.Title.Text = text
-                DropMain.Name = text .. "element"
-                
-
-                local function ToggleDrop()
-                    Dropdown.Toggled = not Dropdown.Toggled
-                    DropMain.Holder.Size = Dropdown.Toggled and UDim2.new(1,0,0,6+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,0)
-                    TweenService:Create(DropMain,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Dropdown.Toggled and UDim2.new(1,0,0,38+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,32)}):Play() 
-                    TweenService:Create(DropMain.Btn.Ico,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play() 
-                    DropMain.Holder.Visible = Dropdown.Toggled
-                end  
-
-                local function AddOptions(opts)
-                    for _,option in pairs(opts) do
-                        local Option = OptionPreset:Clone()
-                        Option.Parent = DropMain.Holder
-                        Option.ItemText.Text = option
-                        Option.ClipsDescendants = true
-
-                        Option.MouseButton1Click:Connect(function()
-                            if table.find(Dropdown.Value, option) then				
-								table.remove(Dropdown.Value, table.find(Dropdown.Value, option))
-								DropMain.Btn.Title.Text = text .. " - " .. table.concat(Dropdown.Value, ", ")
-								callback(Dropdown.Value)
-							else
-								table.insert(Dropdown.Value, option)
-								DropMain.Btn.Title.Text = text .. " - " .. table.concat(Dropdown.Value, ", ")
-								callback(Dropdown.Value)
-							end
-                            Ripple(Option)
-                        end)
-
-                        spawn(function()
-                            while wait() do
-                               Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
-                               DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                            end
-                        end)
-                    end   
-                end    
-
-                function Dropdown:Refresh(opts,del)
-                    if del then
-                        for _,v in pairs(DropMain.Holder:GetChildren()) do
-                            if v:IsA"TextButton" then
-								v:Destroy()
-                                DropMain.Holder.Size = Dropdown.Toggled and UDim2.new(1,0,0,6+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,0)
-                                DropMain.Size = Dropdown.Toggled and UDim2.new(1,0,0,38+DropMain.Holder.Layout.AbsoluteContentSize.Y) or UDim2.new(1,0,0,32)
-							end
-                        end    
-                    end    
-                    AddOptions(opts)
-                end    
-             
-
-                DropMain.Btn.MouseButton1Click:Connect(function()
-                    ToggleDrop()
-                end)
-
-                function Dropdown:Set(val)
-					Dropdown.Value = val
-                    DropMain.Btn.Title.Text = text .. " - " .. table.concat(Dropdown.Value, ", ")
-					return callback(Dropdown.Value)
-				end
-
-                spawn(function()
-                    while wait() do
-                       DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
-                       DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                       DropMain.Btn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-                Dropdown:Refresh(list,false)
-                Dropdown:Set(def)
-                SolarisLib.Flags[flag] = Dropdown
-                return Dropdown
-            end    
-            function ItemHold:Colorpicker(text,preset,flag,callback)
-                local ColorH, ColorS, ColorV = 1, 1, 1
-                local ColorPicker, ColorPreset, DragPreset = {Value = preset, Toggled = false}, game:GetObjects("rbxassetid://7329998014")[1]
-                ColorPreset.Hue.Visible, ColorPreset.Color.Visible = ColorPicker.Toggled, ColorPicker.Toggled
-                ColorPreset.Parent = Section
-                ColorPreset.Btn.Colorpicker.Text = text
-                ColorPreset.Name = text .. "element"
-                ColorPreset.Btn.Box.BackgroundColor3 = preset
-                ColorPreset.Hue.HueGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(255, 0, 4)), ColorSequenceKeypoint.new(0.20, Color3.fromRGB(234, 255, 0)), ColorSequenceKeypoint.new(0.40, Color3.fromRGB(21, 255, 0)), ColorSequenceKeypoint.new(0.60, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(0.80, Color3.fromRGB(0, 17, 255)), ColorSequenceKeypoint.new(0.90, Color3.fromRGB(255, 0, 251)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(255, 0, 4))}
-                local Color = ColorPreset.Color
-                local Hue = ColorPreset.Hue
-                local HueSelection = ColorPreset.Hue.HueSelection
-                local ColorSelection = ColorPreset.Color.ColorSelection
-                
-                function UpdateColorPicker()
-                    ColorPreset.Btn.Box.BackgroundColor3 = Color3.fromHSV(ColorH, ColorS, ColorV)
-                    Color.BackgroundColor3 = Color3.fromHSV(ColorH, 1, 1)
-                    pcall(callback, ColorPreset.Btn.Box.BackgroundColor3)
-                end
-    
-                ColorPreset.Btn.MouseButton1Click:Connect(function()
-                    ColorPicker.Toggled = not ColorPicker.Toggled
-                    TweenService:Create(ColorPreset,TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = ColorPicker.Toggled and UDim2.new(1,0,0,120) or UDim2.new(1,0,0,32)}):Play() 
-                    ColorPreset.Hue.Visible, ColorPreset.Color.Visible = ColorPicker.Toggled, ColorPicker.Toggled
-                end)
-
-                ColorH = 1 - (math.clamp(HueSelection.AbsolutePosition.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-			    ColorS = (math.clamp(ColorSelection.AbsolutePosition.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-                ColorV = 1 - (math.clamp(ColorSelection.AbsolutePosition.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-
-                ColorPreset.Btn.Box.BackgroundColor3 = preset
-                Color.BackgroundColor3 = preset
-                pcall(callback, ColorPreset.Btn.Box.BackgroundColor3)
-
-                Color.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if ColorInput then
-                            ColorInput:Disconnect()
-                        end
-                        ColorInput = RunService.RenderStepped:Connect(function()
-                            local ColorX = (math.clamp(Mouse.X - Color.AbsolutePosition.X, 0, Color.AbsoluteSize.X) / Color.AbsoluteSize.X)
-                            local ColorY = (math.clamp(Mouse.Y - Color.AbsolutePosition.Y, 0, Color.AbsoluteSize.Y) / Color.AbsoluteSize.Y)
-                            ColorSelection.Position = UDim2.new(ColorX, 0, ColorY, 0)
-                            ColorS = ColorX
-                            ColorV = 1 - ColorY
-                            UpdateColorPicker()
-                        end)
-                    end
-                end)
-
-                Color.InputEnded:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if ColorInput then
-                            ColorInput:Disconnect()
-                        end
-                    end
-                end)
-
-                Hue.InputBegan:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if HueInput then
-                            HueInput:Disconnect()
-                        end
-    
-                        HueInput = RunService.RenderStepped:Connect(function()
-                            local HueY = (math.clamp(Mouse.Y - Hue.AbsolutePosition.Y, 0, Hue.AbsoluteSize.Y) / Hue.AbsoluteSize.Y)
-    
-                            HueSelection.Position = UDim2.new(0.48, 0, HueY, 0)
-                            ColorH = 1 - HueY
-    
-                            UpdateColorPicker(true)
-                        end)
-                    end
-                end)
-    
-                Hue.InputEnded:Connect(function(input)
-                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if HueInput then
-                            HueInput:Disconnect()
-                        end
-                    end
-                end)
-
-                spawn(function()
-                    while wait() do
-                       ColorPreset.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Colorpicker
-                       ColorPreset.Btn.Colorpicker.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-                return ColorPicker
-            end
-            function ItemHold:Label(text)
-                local Label, LabelFrame = {}, game:GetObjects("rbxassetid://7032552322")[1]
-                LabelFrame.Parent = Section
-                LabelFrame.Title.Text = text
-                LabelFrame.Name = text .. "element"
-
-                function Label:Set(tochange)
-                    LabelFrame.Title.Text = tochange
-                    LabelFrame.Name = text .. "element"
-                end    
-
-                
-                spawn(function()
-                    while wait() do
-                       LabelFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Label
-                       LabelFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-                return Label
-            end
-            function ItemHold:Textbox(text,disappear,callback)
-                local Textbox, TextboxFrame = {}, game:GetObjects("rbxassetid://7147292392")[1]
-                TextboxFrame.Parent = Section
-                TextboxFrame.Title.Text = text
-                TextboxFrame.Name = text .. "element"
-
-                TextboxFrame.Box.Changed:Connect(function()
-                    TextboxFrame.Box.Size = UDim2.new(0,TextboxFrame.Box.TextBounds.X + 16,0,22)
-                end)
-                TextboxFrame.Box.PlaceholderText = "                  "
-
-                TextboxFrame.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        TextboxFrame.Box:CaptureFocus()
-					end
-				end)
-				
-
-                TextboxFrame.Box.FocusLost:Connect(function()
-                    local txt = TextboxFrame.Box.Text
-                    if disappear then
-                        TextboxFrame.Box.Text = ""
-                    end  
-                    return callback(txt)
-				end)
-
-                UserInputService.InputBegan:Connect(function(input)
-					if input.KeyCode == Enum.KeyCode.Escape and TextboxFrame.Box:IsFocused() then
-						TextboxFrame.Box:ReleaseFocus()
-					end
-				end)
-                
-                spawn(function()
-                    while wait() do
-                       TextboxFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Textbox
-                       TextboxFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                       TextboxFrame.Box.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextboxFrame
-                       TextboxFrame.Box.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-                return Textbox
-            end    
-            function ItemHold:Bind(text,preset,holdmode,flag,callback)
-                local Bind, BindFrame = {Value, Binding = false, Holding = false}, game:GetObjects("rbxassetid://7126874744")[1]
-                BindFrame.Parent = Section
-                BindFrame.Title.Text = text
-                BindFrame.Name = text .. "element"
-
-                
-
-                BindFrame.InputEnded:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                        if Bind.Binding then return end
-                        Bind.Binding = true
-                        BindFrame.BText.Text = "..."
-                    end
-                end)
-
-                UserInputService.InputBegan:Connect(function(Input)
-                    if UserInputService:GetFocusedTextBox() then return end
-                    if (Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value) and not Bind.Binding then
-                        if holdmode then
-                            Holding = true
-                            callback(Holding)
-                        else
-                            callback()
-                        end
-                    elseif Bind.Binding then
-                        local Key
-                        pcall(function()
-                            if not CheckKey(BlacklistedKeys, Input.KeyCode) then
-                                Key = Input.KeyCode
-                            end
-                        end)
-                        pcall(function()
-                            if CheckKey(WhitelistedMouse, Input.UserInputType) and not Key then
-                                Key = Input.UserInputType
-                            end
-                        end)
-                        Key = Key or Bind.Value
-                        Bind:Set(Key)
-                    end
-                end)
-
-                UserInputService.InputEnded:Connect(function(Input)
-                    if Input.KeyCode.Name == Bind.Value or Input.UserInputType.Name == Bind.Value then
-                        if holdmode and Holding then
-                            Holding = false
-                            callback(Holding)
-                        end
-                    end
-                end)
-
-                function Bind:Set(key)
-                    self.Binding = false
-                    self.Value = key or self.Value
-                    self.Value = self.Value.Name or self.Value
-                    BindFrame.BText.Text = self.Value
-				end
-
-                spawn(function()
-                    while wait() do
-                       BindFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Bind
-                       BindFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                       BindFrame.BText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
-
-				Bind:Set(preset)
-                SolarisLib.Flags[flag] = Bind
-                return Bind
-            end    
-            return ItemHold
-        end    
-        return SectionHold
-    end 
-    return TabHolder
-end    
-return SolarisLib
