@@ -141,7 +141,6 @@ if enabled and game.PlaceId == 8204899140 then
 	rconsoleclear() ]]
 	spawn(function()
 		repeat wait() until bypassed
-		rconsoleprint('Bypassed')
 	end)
 	local mt = getrawmetatable(game)
 	local oldnc = mt.__namecall
